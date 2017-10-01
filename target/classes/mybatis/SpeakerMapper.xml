@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.zhiyou100.dao.SpeakerDao">
+  
+    <insert id="saveSpeaker" parameterType="speaker" useGeneratedKeys="true" keyProperty="id">
+    
+        insert into speaker(name, position, image_url, `describe`) values(#{name},#{position},#{imageUrl} ,#{describe})
+    </insert>
+    
+    <update id="updateSpeaker"  parameterType="speaker">
+    
+            update speaker set name=#{name}, position = #{position}, image_url = #{imageUrl}, `describe` = #{describe} where id = #{id}
+    </update>
+    
+    <update id="removeSpeaker">
+    
+        update speaker set status = 1 where id = #{id}
+    </update>
+    
+    <select id="listSpeaker" resultType="speaker" parameterType="selectKey">
+        
+        select id, name, position, image_url, `describe` from speaker 
+        <where>
+             <if test="speakerName!=null and speakerName!=''">
+                   and name like '%${speakerName}%'
+              </if>
+            <if test="speakerPosition!=null and speakerPosition!=''">
+                   and position like '%${speakerPosition}%'
+              </if>
+              and status = 0;
+        </where>
+        
+    </select>
+    
+  </mapper>

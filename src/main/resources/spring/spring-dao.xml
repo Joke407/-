@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <!-- 使dao包中的注解生效，识别 Spring 相关的注解 -->
+    <context:component-scan base-package="com.zhiyou100.dao"></context:component-scan>
+    
+    <!-- 连接数据库, 读取并加载db.properties -->
+     <context:property-placeholder location="classpath:spring/db.properties"/>
+    
+      <!-- 配置链接数据库的参数，可以使用各种第三方的数据库连接池 -->
+    <!-- 导 2 个包：jdbc 和 tx（数据库事务操作） -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClass}"></property>
+        <property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
+        <property name="user" value="${jdbc.user}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+    
+    
+    <!-- 配置SqlSessionFactoryBean -->
+    <!-- 使用的是Mybatis-spring 中的SqlSessionFactoryBean -->
+    <!-- 把Mybatis 中的sqlSessionFactory 转换为可以被Spring 管理的Bean -->
+      <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 数据源 -->
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 设置mybatis 配置文件的路径 -->
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"></property>
+        <!-- 自动起别名 -->
+        <property name="typeAliasesPackage" value="com.zhiyou100.model"></property>
+        <!-- 设置mapper的路径 -->
+        <property name="mapperLocations" value="classpath*:mybatis/*Mapper.xml"></property>
+        
+    </bean>
+    
+     <!-- 自动扫描mapper.对应的 Dao 接口，帮我们创建接口的实现类 -->
+    <!-- 相当于UserDao dao = session.getMapper(UserDao.class); -->
+      <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 把dao 包下的接口的实现类注入到spring容器中 -->
+        <property name="basePackage" value="com.zhiyou100.dao"></property>
+    </bean>
+      
+    </beans>

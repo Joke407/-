@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.zhiyou100.dao.VideoDao">
+    
+    <insert id="addVideo" parameterType="video" useGeneratedKeys="true" keyProperty="id">
+        
+        insert into video(name, `describe`, length, cover_url, video_url,course_id,speaker_id)
+        values(#{name}, #{describe}, #{length}, #{coverUrl}, #{videoUrl}, #{courseId}, #{speakerId})
+    </insert>
+    
+    <update id="removeVideo" parameterType="int">
+    
+        update video set status = 1 
+        <where>
+             <foreach collection="array" item="item" separator="," open="id in(" close=")">
+                   #{item}
+              </foreach>
+        </where>
+    </update>
+    
+    <update id="updateVideo" parameterType="video">
+    
+        update video set name=#{name}, `describe`=#{describe}, length=#{length}, cover_url=#{coverUrl},
+          video_url=#{videoUrl}, course_id=#{courseId}, speaker_id=#{speakerId} where id = #{id}
+    </update>
+    
+    <select id="listVideo" resultType="video" parameterType="selectKey">
+        
+        select v.id, v.name, v.`describe`, v.length, v.play_count, v.cover_url, v.video_url, s.name as speakerName, c.name as courseName ,c.id as courseId, s.id as speakerId
+        from video as v, speaker as s, course as c 
+        <where>
+            <if test="videoTitle!=null and videoTitle!=''">
+                   and v.name like '%${videoTitle}%'
+              </if>
+               <if test="videoSpeaker!=null and videoSpeaker!=''">
+                   and s.id = #{videoSpeaker}
+              </if>
+               <if test="videoSource!=null and videoSource!=''">
+                   and c.id = #{videoSource}
+              </if>
+              and v.course_id = c.id and v.speaker_id = s.id and v.status = 0 limit #{page},10
+              
+        </where>
+    
+    </select>
+    
+    <select id="getVideoNum" parameterType="selectKey" resultType="int">
+          select count(*) from video as v,  speaker as s, course as c 
+           <where>
+            <if test="videoTitle!=null and videoTitle!=''">
+                   and v.name like '%${videoTitle}%'
+              </if>
+               <if test="videoSpeaker!=null and videoSpeaker!=''">
+                   and s.id = #{videoSpeaker}
+              </if>
+               <if test="videoSource!=null and videoSource!=''">
+                   and c.id = #{videoSource}
+              </if>
+              and v.course_id = c.id and v.speaker_id = s.id and v.status = 0 
+              
+        </where>
+      
+    </select>
+  
+  </mapper>
